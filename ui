@@ -6,3 +6,16 @@ Refined Button Design: Replaced flat rectangular buttons with rounded, shadowed 
 
 Aligned Form Fields: Standardized spacing and alignment for each input group to reduce visual strain and guide user flow more effectively.
 
+
+
+[User Uploads Diagram] 
+        ↓
+    [Pega Case Type] 
+        ↓
+[Connect-REST → Your AI Model]
+        ↓
+[Model Analyzes Image]
+        ↓
+[Returns JSON: {"inverters":3, "meters":2}]
+        ↓
+[Pega Uses Data in Workflow]
