@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POI Circuit Validation - Enhanced with Voltage Limits</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .poi-section {
+            margin-bottom: 30px;
+        }
+        
+        .poi-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .poi-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .drpep-link {
+            color: #0066cc;
+            text-decoration: underline;
+        }
+        
+        .radio-options {
+            margin: 20px 0;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px 0;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+        
+        .radio-option label {
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .poi-fields {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .field-section {
+            margin: 20px 0;
+        }
+        
+        .field-section.hidden {
+            display: none;
+        }
+        
+        .field-instructions {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            align-items: center;
+        }
+        
+        .field-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .field-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .required {
+            color: #dc3545;
+        }
+        
+        .field-group input, .field-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .field-group input:focus, .field-group select:focus {
+            border-color: #80bdff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ced4da;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 14px;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .validation-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .validation-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .caiso-link {
+            color: #0066cc;
+            text-decoration: underline;
+        }
+        
+        .voltage-table {
+            background: white;
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .voltage-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .voltage-table th {
+            background: #8B4513;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .voltage-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sce-voltage {
+            background: #f8f9fa;
+        }
+        
+        .caiso-voltage {
+            background: #fff3cd;
+        }
+        
+        .voltage-info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .voltage-info h4 {
+            margin: 0 0 10px 0;
+            color: #1565c0;
+        }
+        
+        .ea-comments {
+            margin-top: 30px;
+        }
+        
+        .ea-comments label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .ea-comments textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 2px solid #ced4da;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        .generation-capacity-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="header">
+        <h2 style="margin: 0; color: #333;">POI Circuit Validation</h2>
+        <p style="margin: 10px 0 0 0; color: #666;">Validate Point of Interconnection and prevent CAISO circuit submissions</p>
+    </div>
+
+    <div class="voltage-info">
+        <h4>📊 Maximum Aggregate Generation by Voltage Level</h4>
+        <p style="margin: 5px 0; color: #333;">Reference table for capacity limits and jurisdiction determination</p>
+    </div>
+
+    <div class="voltage-table">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">SCE Line Voltage</th>
+                    <th colspan="2">CAISO Line Voltage</th>
+                </tr>
+                <tr>
+                    <th>Voltage</th>
+                    <th>Max Aggregate Generation</th>
+                    <th>Voltage</th>
+                    <th>Max Aggregate Generation (N-1)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="sce-voltage">
+                    <td><strong>12 kV</strong></td>
+                    <td>10 MW</td>
+                    <td rowspan="6" class="caiso-voltage"><strong>220 kV</strong></td>
+                    <td rowspan="6" class="caiso-voltage">1150 MW</td>
+                </tr>
+                <tr class="sce-voltage">
+                    <td><strong>16 kV</strong></td>
+                    <td>13 MW</td>
+                </tr>
+                <tr class="sce-voltage">
+                    <td><strong>25 kV</strong></td>
+                    <td>19 MW</td>
+                </tr>
+                <tr class="sce-voltage">
+                    <td><strong>33 kV</strong></td>
+                    <td>27 MW</td>
+                </tr>
+                <tr class="sce-voltage">
+                    <td><strong>66 kV</strong></td>
+                    <td>110 MW</td>
+                </tr>
+                <tr class="sce-voltage">
+                    <td><strong>115 kV</strong></td>
+                    <td>200 MW</td>
+                </tr>
+                <tr class="caiso-voltage">
+                    <td colspan="2"></td>
+                    <td><strong>500 kV</strong></td>
+                    <td>1150 MW</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="poi-section">
+        <div class="poi-title">Point of Interconnection (POI)</div>
+        <div class="poi-description">
+            Please select your desired POI based on SCE's <span class="drpep-link">Distribution Resources Plan External Portal (DRPEP)</span>
+        </div>
+        
+        <div class="radio-options">
+            <div class="radio-option">
+                <input type="radio" id="substation" name="poi_type" value="substation" onchange="handlePOISelection()">
+                <label for="substation">Substation</label>
+            </div>
+            
+            <div class="radio-option">
+                <input type="radio" id="distribution_sub" name="poi_type" value="distribution_sub" onchange="handlePOISelection()">
+                <label for="distribution_sub">Distribution Feeder or Sub Transmission Line</label>
+            </div>
+            
+            <div class="radio-option">
+                <input type="radio" id="approximate" name="poi_type" value="approximate" onchange="handlePOISelection()">
+                <label for="approximate">Approximate location of the proposed Point of Interconnection</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="poi-fields">
+        <!-- SUBSTATION FIELDS -->
+        <div id="substation_fields" class="field-section hidden">
+            <div class="field-instructions">
+                Please select a Substation to proceed.<br>
+                <em>(If you're unable to find a suitable option for the Substation field, please choose the option 'Other' from the list and enter your information manually).</em>
+            </div>
+            
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="substation_name">Substation (Name and Voltage Level) <span class="required">*</span></label>
+                    <input type="text" id="substation_name" name="substation_name" placeholder="Enter substation name...">
+                </div>
+            </div>
+        </div>
+
+        <!-- DISTRIBUTION FEEDER / SUB TRANSMISSION FIELDS -->
+        <div id="distribution_sub_fields" class="field-section hidden">
+            <div class="field-instructions">
+                Please select a Subtransmission Line or a Distribution Feeder to proceed.<br>
+                <em>(If you're unable to find a suitable option for the Distribution Feeder and/or the Subtransmission Line, please choose the option 'Other' from the list and enter your information manually).</em>
+            </div>
+            
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="subtransmission_line">Subtransmission Line <span class="required">*</span></label>
+                    <div class="autocomplete-container">
+                        <input type="text" id="subtransmission_line" name="subtransmission_line" 
+                               placeholder="Start typing to search or enter new line..."
+                               oninput="handleSubtransmissionSearch(this.value)"
+                               onblur="hideSubtransmissionSuggestions()">
+                        <div id="subtransmission_suggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="distribution_feeder">Distribution Feeder (Circuit / Line) <span class="required">*</span></label>
+                    <div class="autocomplete-container">
+                        <input type="text" id="distribution_feeder" name="distribution_feeder" 
+                               placeholder="Start typing to search or enter new feeder..."
+                               oninput="handleFeederSearch(this.value)"
+                               onblur="hideFeederSuggestions()">
+                        <div id="feeder_suggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMON FIELDS -->
+        <div id="common_fields" class="field-section hidden">
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="system">System</label>
+                    <input type="text" id="system" name="system" placeholder="Enter system...">
+                </div>
+            </div>
+            
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="poi_voltage">POI Voltage (kV) <span class="required">*</span></label>
+                    <select id="poi_voltage" name="poi_voltage" onchange="validateVoltageSelection()">
+                        <option value="">Please Select</option>
+                        <option value="12">12 kV</option>
+                        <option value="16">16 kV</option>
+                        <option value="25">25 kV</option>
+                        <option value="33">33 kV</option>
+                        <option value="66">66 kV</option>
+                        <option value="115">115 kV</option>
+                        <option value="220" class="caiso-option">220 kV (CAISO)</option>
+                        <option value="500" class="caiso-option">500 kV (CAISO)</option>
+                    </select>
+                </div>
+                
+                <div class="field-group">
+                    <label for="substation_bus">Substation Bus <span class="required">*</span></label>
+                    <select id="substation_bus" name="substation_bus">
+                        <option value="115kv">115 kV Bus</option>
+                        <option value="12kv">12 kV Bus</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Generation Capacity Information -->
+            <div id="generation_capacity_info" class="generation-capacity-info" style="display: none;">
+                <strong>💡 Maximum Generation Capacity for Selected Voltage:</strong>
+                <div id="capacity_details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VALIDATION WARNINGS -->
+    <div id="caiso_warning" class="validation-error">
+        <strong>⚠️ CAISO Controlled Circuit Detected</strong><br>
+        The POI you have listed is served by a CAISO controlled substation/line. Please visit 
+        <a href="#" class="caiso-link">Interconnection request and study | California ISO</a> 
+        to submit a Pre-Application Report request through the CAISO.
+    </div>
+
+    <div id="voltage_warning" class="validation-error">
+        <strong>⚠️ CAISO Transmission Level Voltage</strong><br>
+        This is a CAISO transmission level voltage. Please visit 
+        <a href="https://www.caiso.com" class="caiso-link">https://www.caiso.com</a> 
+        for more information on submitting a Pre-Application Request to CAISO.
+    </div>
+
+    <div class="ea-comments">
+        <label for="ea_comments">EA Comments:</label>
+        <textarea id="ea_comments" name="ea_comments" placeholder="Enter additional comments..."></textarea>
+    </div>
+</div>
+
+<script>
+// Voltage capacity mapping from the tables
+const voltageCapacityMap = {
+    12: { capacity: '10 MW', type: 'SCE', conversion: '10 MW = 10,000 kW' },
+    16: { capacity: '13 MW', type: 'SCE', conversion: '13 MW = 13,000 kW' },
+    25: { capacity: '19 MW', type: 'SCE', conversion: '19 MW = 19,000 kW' },
+    33: { capacity: '27 MW', type: 'SCE', conversion: '27 MW = 27,000 kW' },
+    66: { capacity: '110 MW', type: 'SCE', conversion: '110 MW = 110,000 kW' },
+    115: { capacity: '200 MW', type: 'SCE', conversion: '200 MW = 200,000 kW' },
+    220: { capacity: '1150 MW (N-1)', type: 'CAISO', conversion: '1150 MW = 1,150,000 kW' },
+    500: { capacity: '1150 MW (N-1)', type: 'CAISO', conversion: '1150 MW = 1,150,000 kW' }
+};
+
+// CAISO controlled substations from user story
+const caisoSubstations = [
+    "Control", "Zack", "Deep Springs", "Fish Lake Valley", "Antelope", "Bailey", "Neenach",
+    "Coso", "Haiwee", "Inyokern", "Randsburg", "Kramer", "Roadway", "Victor", "Tortilla",
+    "Coolwater", "Dunn Siding", "Baker", "Mountain Pass", "Ivanpah"
+];
+
+// CAISO controlled subtransmission lines from user story  
+const caisoSubtransmissionLines = [
+    "Control-Silver Peak \"A\"", "Control-Silver Peak \"C\"", "Antelope-Neenach", "Bailey-Neenach-Westpac",
+    "Control-Haiwee-Inyokern", "Control-Coso-Haiwee-Inyokern", "Kramer-Inyokern-Randsburg No.1",
+    "Kramer-Inyokern-Randsburg No.3", "Kramer-Victor", "Kramer-Roadway", "Kramer-Coolwater",
+    "Kramer-Tortilla", "Coolwater-SEGS2-Tortilla", "Victor-Roadway", "Coolwater-Ivanpah-Baker-Dunn Siding-Mountain Pass"
+];
+
+// Full subtransmission line list with voltage levels
+const subtransmissionLines = [
+    "Control-Silver Peak \"A\" 55 kV Line",
+    "Control-Silver Peak \"C\" 55 kV Line", 
+    "Antelope-Neenach 66 kV Line",
+    "Bailey-Neenach-Westpac 66 kV Line",
+    "Control-Haiwee-Inyokern 115 kV Line",
+    "Control-Coso-Haiwee-Inyokern 115 kV Line",
+    "Kramer-Inyokern-Randsburg No.1 115 kV Line", 
+    "Kramer-Inyokern-Randsburg No.3 115 kV Line",
+    "Kramer-Victor 115 kV Line",
+    "Kramer-Roadway 115 kV Line",
+    "Kramer-Coolwater 115 kV Line",
+    "Kramer-Tortilla 115 kV Line", 
+    "Coolwater-SEGS2-Tortilla 115 kV Line",
+    "Victor-Roadway 115 kV Line",
+    "Coolwater-Ivanpah-Baker-Dunn Siding-Mountain Pass 115 kV Line"
+];
+
+// Sample distribution feeders
+const distributionFeeders = [
+    "Antelope Circuit 1", "Antelope Circuit 2", "Bailey Circuit 1", "Bailey Circuit 2", 
+    "Control Circuit 1", "Control Circuit 2", "Coso Circuit 1", "Haiwee Circuit 1",
+    "Inyokern Circuit 1", "Kramer Circuit 1", "Victor Circuit 1", "Tortilla Circuit 1"
+];
+
+function handlePOISelection() {
+    const selectedValue = document.querySelector('input[name="poi_type"]:checked')?.value;
+    
+    // Hide all field sections
+    document.getElementById('substation_fields').classList.add('hidden');
+    document.getElementById('distribution_sub_fields').classList.add('hidden'); 
+    document.getElementById('common_fields').classList.add('hidden');
+    document.getElementById('caiso_warning').style.display = 'none';
+    document.getElementById('voltage_warning').style.display = 'none';
+    
+    // Show relevant fields based on selection
+    if (selectedValue === 'substation') {
+        document.getElementById('substation_fields').classList.remove('hidden');
+        document.getElementById('common_fields').classList.remove('hidden');
+    } else if (selectedValue === 'distribution_sub') {
+        document.getElementById('distribution_sub_fields').classList.remove('hidden');
+        document.getElementById('common_fields').classList.remove('hidden');
+    }
+}
+
+function handleSubtransmissionSearch(value) {
+    const suggestionsDiv = document.getElementById('subtransmission_suggestions');
+    
+    if (value.length < 2) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+    
+    const filtered = subtransmissionLines.filter(line => 
+        line.toLowerCase().includes(value.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+    
+    suggestionsDiv.innerHTML = filtered.map(line => 
+        `<div class="suggestion-item" onclick="selectSubtransmission('${line}')">${line}</div>`
+    ).join('');
+    
+    suggestionsDiv.style.display = 'block';
+    
+    // Check for CAISO controlled lines
+    checkCaisoSubtransmission(value);
+}
+
+function handleFeederSearch(value) {
+    const suggestionsDiv = document.getElementById('feeder_suggestions');
+    
+    if (value.length < 2) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+    
+    const filtered = distributionFeeders.filter(feeder => 
+        feeder.toLowerCase().includes(value.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+    
+    suggestionsDiv.innerHTML = filtered.map(feeder => 
+        `<div class="suggestion-item" onclick="selectFeeder('${feeder}')">${feeder}</div>`
+    ).join('');
+    
+    suggestionsDiv.style.display = 'block';
+}
+
+function selectSubtransmission(line) {
+    document.getElementById('subtransmission_line').value = line;
+    hideSubtransmissionSuggestions();
+    checkCaisoSubtransmission(line);
+}
+
+function selectFeeder(feeder) {
+    document.getElementById('distribution_feeder').value = feeder;
+    hideFeederSuggestions();
+}
+
+function hideSubtransmissionSuggestions() {
+    setTimeout(() => {
+        document.getElementById('subtransmission_suggestions').style.display = 'none';
+    }, 200);
+}
+
+function hideFeederSuggestions() {
+    setTimeout(() => {
+        document.getElementById('feeder_suggestions').style.display = 'none';
+    }, 200);
+}
+
+function checkCaisoSubtransmission(value) {
+    const warningDiv = document.getElementById('caiso_warning');
+    const isCaisoControlled = caisoSubtransmissionLines.some(line => 
+        value.toLowerCase().includes(line.toLowerCase())
+    );
+    
+    if (isCaisoControlled) {
+        warningDiv.style.display = 'block';
+    } else {
+        warningDiv.style.display = 'none';
+    }
+}
+
+function validateVoltageSelection() {
+    const voltage = parseFloat(document.getElementById('poi_voltage').value);
+    const voltageWarningDiv = document.getElementById('voltage_warning');
+    const capacityInfoDiv = document.getElementById('generation_capacity_info');
+    const capacityDetailsDiv = document.getElementById('capacity_details');
+    
+    if (voltage && voltageCapacityMap[voltage]) {
+        const voltageInfo = voltageCapacityMap[voltage];
+        
+        // Show capacity information
+        capacityInfoDiv.style.display = 'block';
+        capacityDetailsDiv.innerHTML = `
+            <div style="margin-top: 10px;">
+                <strong>Maximum Aggregate Generation:</strong> ${voltageInfo.capacity}<br>
+                <strong>Conversion:</strong> ${voltageInfo.conversion}<br>
+                <strong>Jurisdiction:</strong> ${voltageInfo.type}
+            </div>
+        `;
+        
+        // Show CAISO warning for transmission voltages
+        if (voltageInfo.type === 'CAISO') {
+            voltageWarningDiv.style.display = 'block';
+        } else {
+            voltageWarningDiv.style.display = 'none';
+        }
+    } else {
+        capacityInfoDiv.style.display = 'none';
+        voltageWarningDiv.style.display = 'none';
+    }
+}
+
+// Check for CAISO controlled substations on substation name input
+document.addEventListener('DOMContentLoaded', function() {
+    const substationInput = document.getElementById('substation_name');
+    if (substationInput) {
+        substationInput.addEventListener('input', function(e) {
+            const value = e.target.value;
+            const warningDiv = document.getElementById('caiso_warning');
+            const isCaisoControlled = caisoSubstations.some(substation => 
+                value.toLowerCase().includes(substation.toLowerCase())
+            );
+            
+            if (isCaisoControlled) {
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
